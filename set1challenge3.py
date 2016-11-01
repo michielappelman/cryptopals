@@ -6,7 +6,7 @@ import string
 from binascii import unhexlify, hexlify
 
 STRING = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
-COMMON = "etaoins"
+LETTERS = "etaoinshrdlcumwfgypbvkjxqz"
 
 
 def xor_strings_single_chr(s, character):
@@ -15,6 +15,16 @@ def xor_strings_single_chr(s, character):
     joined = "".join(xor)
     return hexlify(joined)
 
+
+def english_score(result):
+    """Score the result based on letter frequency in English."""
+    scores = {letter: score for score, letter in enumerate(reversed(LETTERS))}
+    score = 0
+    for character in result[1]:
+        if str(character) in LETTERS:
+            score += scores[character]
+    return score
+
 contenders = []
 
 for c in string.printable:
@@ -22,11 +32,9 @@ for c in string.printable:
 
     # Only look at results where all characters are actually printable.
     if all(a in string.printable for a in result):
-        # Count the number of characters also most common English characters.
-        count = len([p for p in result.lower() if p in COMMON])
-        contenders.append((c, result, int(count)))
+        contenders.append((c, result))
 
 # Pick the contender with the highest number of common characters.
-PROBABLY = max(contenders, key=lambda x: x[2])
+winner = max(contenders, key=english_score)
 
-print("{}: {}".format(PROBABLY[0], PROBABLY[1]))
+print("{}: {}".format(winner[0], winner[1]))
