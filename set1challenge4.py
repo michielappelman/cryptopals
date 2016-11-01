@@ -3,16 +3,17 @@
 """Detect single-character XOR - https://cryptopals.com/sets/1/challenges/4"""
 
 import string
+from itertools import cycle
 from binascii import unhexlify, hexlify
 
 LETTERS = "etaoinshrdlcumwfgypbvkjxqz"
 
 
-def xor_strings_single_chr(s, character):
-    """XOR a hex string with one character, returns a new hex string."""
-    xor = [chr(ord(b) ^ ord(character)) for b in unhexlify(s.strip())]
+def decrypt(hex, key):
+    """XOR a hex string with a repeating key, returns a regular string."""
+    xor = [chr(ord(b) ^ ord(c)) for b, c in zip(unhexlify(hex.strip()), cycle(key))]
     joined = "".join(xor)
-    return hexlify(joined)
+    return joined
 
 
 def english_score(result):
@@ -29,7 +30,7 @@ contenders = []
 with open("4.txt", "r") as input_file:
     for line in input_file:
         for c in string.printable:
-            result = unhexlify(xor_strings_single_chr(line, c))
+            result = decrypt(line, c)
             # Only look at results where all characters are actually printable.
             if all(a in string.printable for a in result):
                 contenders.append((c, result.strip()))

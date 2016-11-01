@@ -3,17 +3,18 @@
 """Single-byte XOR cipher - https://cryptopals.com/sets/1/challenges/3"""
 
 import string
-from binascii import unhexlify, hexlify
+from itertools import cycle
+from binascii import unhexlify
 
 STRING = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
 LETTERS = "etaoinshrdlcumwfgypbvkjxqz"
 
 
-def xor_strings_single_chr(s, character):
-    """XOR a hex string with one character, returns a new hex string."""
-    xor = [chr(ord(b) ^ ord(character)) for b in unhexlify(s)]
+def decrypt(hex, key):
+    """XOR a hex string with a repeating key, returns a regular string."""
+    xor = [chr(ord(b) ^ ord(c)) for b, c in zip(unhexlify(hex.strip()), cycle(key))]
     joined = "".join(xor)
-    return hexlify(joined)
+    return joined
 
 
 def english_score(result):
@@ -28,7 +29,7 @@ def english_score(result):
 contenders = []
 
 for c in string.printable:
-    result = unhexlify(xor_strings_single_chr(STRING, c))
+    result = decrypt(STRING, c)
 
     # Only look at results where all characters are actually printable.
     if all(a in string.printable for a in result):
